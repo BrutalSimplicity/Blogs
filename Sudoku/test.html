@@ -1,0 +1,345 @@
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/darkula.min.css">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<style>
+/* body */
+body {
+    margin: 20px auto;
+    width: 800px;
+    color: #000;
+    font: 13px "Myriad Pro", "Lucida Grande", Lucida, Verdana, sans-serif;
+}
+
+
+/* html tags */
+
+/*  Work around IE/Win code size bug - courtesy Jesper, waffle.wootest.net  */
+
+* html code {
+    font-size: 101%;
+}
+
+* html pre {
+    font-size: 101%;
+}
+
+pre {
+	height: 500px;
+	overflow: auto;
+	background: #f1f5f9;
+	border: 1px solid #c7cfd5;
+	margin: 5px;
+	padding: 8px;
+}
+
+
+hr {
+    color: #919699;
+    size: 1;
+    width: 100%;
+    noshade: "noshade"
+}
+
+/* headers */
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Myriad Pro", "Lucida Grande", Lucida, Verdana, sans-serif;
+    font-weight: bold;
+}
+
+h1  {
+    margin-top: 1em;
+    margin-bottom: 25px;
+    color: #000;
+    font-weight: bold;
+    font-size: 30px;
+}
+h2  {
+    margin-top: 2.5em;
+    font-size: 24px;
+    color: #000;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #919699;
+}
+h3  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+    font-size: 17px;
+    color: #000;
+}
+h4  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+    font-size: 15px;
+    color: #000;
+}
+h5  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+    padding: 0;
+    font-size: 13px;
+    color: #000;
+}
+
+h6  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+    padding: 0;
+    font-size: 11px;
+    color: #000;
+}
+
+p {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
+/* lists */
+
+ul  {
+    list-style: square outside;
+    margin: 0 0 0 30px;
+    padding: 0 0 12px 6px;
+}
+
+li  {
+    margin-top: 7px;
+}
+            
+ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin: 0 0 0 30px;
+    padding: 0 0 12px 6px;
+}
+    
+ol ol {
+    list-style-type: lower-alpha;
+    list-style-position: outside;
+    margin: 7px 0 0 30px;
+    padding: 0 0 0 10px;
+    }
+
+ul ul {
+    margin-left: 40px;
+    padding: 0 0 0 6px;
+}
+
+li>p { display: inline }
+li>p+p { display: block }
+li>a+p { display: block }
+
+
+/* table */
+
+table {
+    width: 100%;
+    border-top: 1px solid #919699;
+    border-left: 1px solid #919699;
+    border-spacing: 0;
+}
+    
+table th {
+    padding: 4px 8px 4px 8px;
+    background: #E2E2E2;
+    font-size: 12px;
+    border-bottom: 1px solid #919699;
+    border-right: 1px solid #919699;
+}
+table th p {
+    font-weight: bold;
+    margin-bottom: 0px; 
+}
+    
+table td {
+    padding: 8px;
+    font-size: 12px;
+    vertical-align: top;
+    border-bottom: 1px solid #919699;
+    border-right: 1px solid #919699;
+}
+table td p {
+    margin-bottom: 0px; 
+}
+table td p + p  {
+    margin-top: 5px; 
+}
+table td p + p + p {
+    margin-top: 5px; 
+}
+
+/* forms */
+
+form {
+    margin: 0;
+}
+
+button {
+    margin: 3px 0 10px 0;
+}
+input {
+    vertical-align: middle;
+    padding: 0;
+    margin: 0 0 5px 0;
+}
+
+select {
+    vertical-align: middle;
+    padding: 0;
+    margin: 0 0 3px 0;
+}
+
+textarea {
+    margin: 0 0 10px 0;
+    width: 100%;
+}
+</style>
+<h1 id="sudokudesignandimplementationinc">Sudoku Design and Implementation in C#</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Any Sudoku fans out there? This cool little combinatorial puzzle has been around for thousands of years in many different forms, but the most popular version that we know of today gained a mainstream audience only within the last decade. Most people believe that the game originated in Japan, but earliest records indicate that during the 18th century, the genius, Swedish mathematician Leonhard Euler began formulating a number puzzle very similar to the Sudoku we know today.</p>
+
+<figure>
+<img src="leonhard-eulers-quotes-2.jpg" alt="" />
+</figure>
+
+<p>So why all this talk about Sudoku? Well, it turns out that the solution to the puzzles that most people reason out in their heads can be conveniently constructed into a computer algorithm that can solve any Sudoku in fractions of a second. And better yet, we can implement the solution in our favorite programming language - C#!</p>
+
+<h2 id="theidea">The Idea</h2>
+
+<p>First, let&#8217;s think about the algorithm before we begin coding. If you&#8217;ve never played Sudoku before, here is the objective: </p>
+
+<blockquote>
+<p>Fill a 9x9 grid with digits so that each column, each row, and each of the nine 3x3 sub-grids that compose the grid (also called &#8220;boxes&#8221;, &#8220;blocks&#8221;, &#8220;regions&#8221;, or &#8220;sub-squares&#8221;) contains all of the digits from 1 to 9. </p>
+</blockquote>
+
+<p>Simple, right? So essentially the sequence of our game is as follows:</p>
+
+<ol>
+<li>Select an unfilled square</li>
+<li>Pick a number between 1&#8211;9</li>
+<li>If the number is not in the same row, column, or grid as the selected square, then place the number, otherwise, select a different number.</li>
+<li>If no number matches our conditions, then we made a mistake earlier, so back up to the previously selected square.</li>
+<li>Rinse and repeat until the puzzle is filled.</li>
+</ol>
+
+<p>This is the basic skeleton of our algorithm. In fact, with just this algorithm we can find a solution to every Sudoku puzzle. The problem, is that there are 6.67x10<sup>21</sup> solutions to a Sudoku grid, so letting our program just fumble around guessing solutions is probably not something we&#8217;re going to hang around for. The question is, can we make our program&#8217;s job easier? And the answer is &#8220;Yes.&#8221; </p>
+
+<h2 id="thedesign">The Design</h2>
+
+<p>At the heart of Sudoku is essentially a decision optimization problem. Currently our sequence doesn&#8217;t seem to do anything intelligent with its guesses. It just randomly picks a square, and then randomly picks a number, but what if we could add some intelligence to those guesses. Instead of picking a random square, it would make more sense to only pick squares that give us the greatest possibility of being right. This allows us to minimize the number of incorrect guesses, which will reduce the number of times we need to backtrack, ultimately improving the performance of our solution. </p>
+
+<h3 id="minimizationakapruning">Minimization (aka Pruning)</h3>
+
+<p>So, how do we do this? Well, first, let&#8217;s look at the minimzation (also read optimization) problem before us. If we are minimizing our problem space, then that means there must be a set of constraints (or rules) that we must adhere to in order for our decision to be optimal, and since we know the rules of the game, let&#8217;s start there.</p>
+
+<ol>
+<li>Each cell can only have one digit between 1 and 9.</li>
+<li>Each row must contain digits 1 to 9.*</li>
+<li>Each column must contain digits 1 to 9.*</li>
+<li>Each region must contain digits 1 to 9.*</li>
+</ol>
+
+<p>*<em>Since each row, column and region contains 9 cells, this also implies that there are no repeated digits</em></p>
+
+<p>I imagine this as a scratchoff card for each cell, where each card has the numbers 1 to 9. From this point on let&#8217;s change the arbitrary and ambiguous term numbers to candidates. This will make it clear that we are making a decision among a collection of choices. Now, as we apply the constraints, we can scratchoff candidates that don&#8217;t belong. Now imagine the row, column, and region constraints as a series of blocks that prevent us from placing certain numbers in their areas. So when a number is placed on the grid, we now have a block placed on that number in the corresponding row, column and region. Let&#8217;s further clarify this analogy with a graphic.</p>
+
+<figure>
+<img src="sudoku-constraints.png" alt="" />
+</figure>
+
+<p>This graphic shows a 3x3 region of cells, with their candidates listed in each cell. It then shows the first row, column, and region, and the constraints placed in those regions. So, if we constrain the cells in this region according to these constraints, we find that are choices begin to narrow rather quickly. For example, in the first square, we went from a possible 9 candidates, to only 3 with only a region&#8217;s worth of information. Now imagine having all of the information from the entire board, and you see that the problem begins to &#8220;almost&#8221; solve itself.</p>
+
+<pre><code class="cs"> class Candidate : IEnumerable
+{
+    bool[] m_values;
+    int m_count;
+    int m_numCandidates;
+
+    public int Count { get { return m_count; } }
+
+    public Candidate(int numCandidates, bool initialValue)
+    {
+        m_values = new bool[numCandidates];
+        m_count = 0;
+        m_numCandidates = numCandidates;
+
+        for (int i = 1; i &lt;= numCandidates; i++)
+            this[i] = initialValue;
+    }
+
+    public bool this[int key]
+    {
+        // Allows candidates to be referenced by actual value (i.e. 1-9, rather than 0 - 8)
+        get { return m_values[key - 1]; }
+
+        // Automatically tracks the number of candidates
+        set
+        {
+            m_count += (m_values[key - 1] == value) ? 0 : (value == true) ? 1 : -1;
+            m_values[key - 1] = value;
+        }
+    }
+
+    public void SetAll(bool value)
+    {
+        for (int i = 1; i &lt;= m_numCandidates; i++)
+            this[i] = value;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder values = new StringBuilder();
+        foreach (int candidate in this)
+            values.Append(candidate);
+        return values.ToString();
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        return new CandidateEnumerator(this);
+    }
+
+    // Enumerator simplifies iterating over candidates
+    private struct CandidateEnumerator : IEnumerator
+    {
+        private int m_position;
+        private Candidate m_c;
+
+        public CandidateEnumerator(Candidate c)
+        {
+            m_c = c;
+            m_position = 0;
+        }
+
+        // only iterates over valid candidates
+        public bool MoveNext()
+        {
+            ++m_position;
+            if (m_position &lt;= m_c.m_numCandidates)
+            {
+                if (m_c[m_position] == true)
+                    return true;
+                else
+                    return MoveNext();
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void Reset()
+        {
+            m_position = 0;
+        }
+
+        public object Current
+        {
+            get { return m_position; }
+        }
+    }
+}
+</code></pre>

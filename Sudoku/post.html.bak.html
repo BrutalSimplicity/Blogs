@@ -1,0 +1,553 @@
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/darkula.min.css">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+/* body */
+body {
+    margin: 20px auto;
+    width: 800px;
+    color: #000;
+    font: 13px "Myriad Pro", "Lucida Grande", Lucida, Verdana, sans-serif;
+}
+
+.post-title {display:none;}
+.post {font-size: 11px;}
+.footnotes { margin-top: 50px;}
+
+/* html tags */
+
+/*  Work around IE/Win code size bug - courtesy Jesper, waffle.wootest.net  */
+
+* html code {
+    font-size: 101%;
+}
+
+* html pre {
+    font-size: 101%;
+}
+
+/* code */
+
+pre {
+ font-size: 101%;
+ max-height: 500px;
+ overflow: auto;
+ background: #f1f5f9;
+ border: 1px solid #c7cfd5;
+ margin: 5px;
+ padding: 8px;
+ white-space: pre;
+ word-break: normal;
+ word-wrap: normal;
+}
+
+hr {
+    color: #919699;
+    size: 1;
+    width: 100%;
+    noshade: "noshade"
+}
+
+/* headers */
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Myriad Pro", "Lucida Grande", Lucida, Verdana, sans-serif;
+    font-weight: bold;
+}
+
+h1  {
+    margin-top: 1em;
+    margin-bottom: 25px;
+    color: #000;
+    font-weight: bold;
+    font-size: 30px;
+}
+h2  {
+    margin-top: 2.5em;
+    font-size: 24px;
+    color: #000;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #919699;
+}
+h3  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+    font-size: 17px;
+    color: #000;
+}
+h4  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+    font-size: 15px;
+    color: #000;
+}
+h5  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+    padding: 0;
+    font-size: 13px;
+    color: #000;
+}
+
+h6  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+    padding: 0;
+    font-size: 11px;
+    color: #000;
+}
+
+p {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* lists */
+
+ul  {
+    list-style: square outside;
+    margin: 0 0 0 30px;
+    padding: 0 0 12px 6px;
+}
+
+li  {
+    margin-top: 7px;
+}
+            
+ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin: 0 0 0 30px;
+    padding: 0 0 12px 6px;
+}
+    
+ol ol {
+    list-style-type: lower-alpha;
+    list-style-position: outside;
+    margin: 7px 0 0 30px;
+    padding: 0 0 0 10px;
+    }
+
+ul ul {
+    margin-left: 40px;
+    padding: 0 0 0 6px;
+}
+
+li>p { display: inline }
+li>p+p { display: block }
+li>a+p { display: block }
+
+
+/* table */
+
+table {
+    width: 100%;
+    border-top: 1px solid #919699;
+    border-left: 1px solid #919699;
+    border-spacing: 0;
+}
+    
+table th {
+    padding: 4px 8px 4px 8px;
+    background: #E2E2E2;
+    font-size: 12px;
+    border-bottom: 1px solid #919699;
+    border-right: 1px solid #919699;
+}
+table th p {
+    font-weight: bold;
+    margin-bottom: 0px; 
+}
+    
+table td {
+    padding: 8px;
+    font-size: 12px;
+    vertical-align: top;
+    border-bottom: 1px solid #919699;
+    border-right: 1px solid #919699;
+}
+table td p {
+    margin-bottom: 0px; 
+}
+table td p + p  {
+    margin-top: 5px; 
+}
+table td p + p + p {
+    margin-top: 5px; 
+}
+
+/* forms */
+
+form {
+    margin: 0;
+}
+
+button {
+    margin: 3px 0 10px 0;
+}
+input {
+    vertical-align: middle;
+    padding: 0;
+    margin: 0 0 5px 0;
+}
+
+select {
+    vertical-align: middle;
+    padding: 0;
+    margin: 0 0 3px 0;
+}
+
+textarea {
+    margin: 0 0 10px 0;
+    width: 100%;
+}
+</style>
+<h1 id="sudokudesignandimplementationinc">Sudoku Design and Implementation in C#</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Any Sudoku fans out there? This cool little combinatorial puzzle has been around for thousands of years in many different forms, but the most popular version that we know of today gained a mainstream audience only within the last decade. Most people believe that the game originated in Japan, but earliest records indicate that during the 18th century, the genius, Swedish mathematician Leonhard Euler began formulating a number puzzle very similar to the Sudoku we know today.</p>
+
+<div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-OgSR9iHbUdc/VXD_XkR4znI/AAAAAAAAAeI/QJcoFcD5Z1A/s1600/leonhard-eulers-quotes-2.jpg" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://2.bp.blogspot.com/-OgSR9iHbUdc/VXD_XkR4znI/AAAAAAAAAeI/QJcoFcD5Z1A/s400/leonhard-eulers-quotes-2.jpg" /></a></div>
+
+<p>So why all this talk about Sudoku? Well, it turns out that the solution to the puzzles that most people reason out in their heads can be conveniently constructed into a computer algorithm that can solve any Sudoku in fractions of a second. And better yet, we can implement the solution in our favorite programming language - C#!</p>
+
+<p><a href="">Source Code</a> Version: Visual Studio 2013 .Net 4.5</p>
+
+<p><em>This code will not be the exact same as the code presented here. It has a few additional optimizations that don&#8217;t assist in our search for knowledge and edification. However, it should be easy to follow the logic discussed here.</em></p>
+
+<h2 id="theidea">The Idea</h2>
+
+<p>First, let&#8217;s think about the algorithm before we begin coding. If you&#8217;ve never played Sudoku before, here is the objective: </p>
+
+<blockquote>
+<p>Fill a 9x9 grid with digits so that each column, each row, and each of the nine 3x3 sub-grids that compose the grid (also called &#8220;boxes&#8221;, &#8220;blocks&#8221;, &#8220;regions&#8221;, or &#8220;sub-squares&#8221;) contains all of the digits from 1 to 9. </p>
+</blockquote>
+
+<p>Simple, right? So essentially the sequence of our game is as follows:</p>
+
+<ol>
+<li>Select an unfilled square</li>
+<li>Pick a number between 1&#8211;9</li>
+<li>If the number is not in the same row, column, or grid as the selected square, then place the number, otherwise, select a different number.</li>
+<li>If no number matches our conditions, then we made a mistake earlier, so back up to the previously selected square.</li>
+<li>Rinse and repeat until the puzzle is filled.</li>
+</ol>
+
+<p>This is the basic skeleton of our algorithm. In fact, with just this algorithm we can find a solution to every Sudoku puzzle. The problem, is that there are 6.67x10<sup>21</sup> solutions to a Sudoku grid, so letting our program just fumble around guessing solutions is probably not something we&#8217;re going to hang around for. The question is, can we make our program&#8217;s job easier? And the answer is &#8220;Yes.&#8221; </p>
+
+<h2 id="thedesign">The Design</h2>
+
+<p>At the heart of Sudoku is essentially a decision optimziation problem. Currently our sequence doesn&#8217;t seem to do anything intelligent with its guesses. It just randomly picks a square, and then randomly picks a number, but what if we could add some intelligence to those guesses. Instead of picking a random square, it would make more sense to only pick squares that give us the greatest possibility of being right. This allows us to minimize the number of incorrect guesses, which will reduce the number of times we need to backtrack, ultimately improving the performance of our solution. There are many decision optimization problems that can be solved using this technique. Check out the Dancing Links algorithm created by Donald Knuth for a more general approach to solving problems like this.<a class="citation" href="#fn:1" title="Jump to citation">[1]<span class="citekey" style="display:none">dancing-links</span></a></p>
+
+<h3 id="minimizationakapruning">Minimization (aka Pruning)</h3>
+
+<p>So, how do we do this? Well, first, let&#8217;s look at the minimzation (also read optimization) problem before us. If we are minimizing our problem space, then that means there must be a set of constraints (or rules) that we must adhere to in order for our decision to be optimal, and since we know the rules of the game, let&#8217;s start there.</p>
+
+<ol>
+<li>Each cell can only have one digit between 1 and 9.</li>
+<li>Each row must contain digits 1 to 9.*</li>
+<li>Each column must contain digits 1 to 9.*</li>
+<li>Each region must contain digits 1 to 9.*</li>
+</ol>
+
+<p>*<em>Since each row, column and region contains 9 cells, this also implies that there are no repeated digits</em></p>
+
+<p>I imagine this as a scratchoff card for each cell, where each card has the numbers 1 to 9. From this point on let&#8217;s change the arbitrary and ambiguous term numbers to candidates. This will make it clear that we are making a decision among a collection of choices. Now, as we apply the constraints, we can scratchoff candidates that don&#8217;t belong. Now imagine the row, column, and region constraints as a series of blocks that prevent us from placing certain numbers in their areas. So when a number is placed on the grid, we now have a block placed on that number in the corresponding row, column and region. Let&#8217;s further clarify this analogy with a graphic.</p>
+
+<div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-hm3VFHlba_U/VXD_Xk1jFII/AAAAAAAAAeE/Szm00_ujp4U/s1600/sudoku-constraints.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://3.bp.blogspot.com/-hm3VFHlba_U/VXD_Xk1jFII/AAAAAAAAAeE/Szm00_ujp4U/s400/sudoku-constraints.png" /></a></div>
+
+<p>This graphic shows a 3x3 region of cells, with their candidates listed in each cell. It then shows the first row, column, and region; and the constraints placed in those regions. So, if we restrict the cells in this region according to these constraints, we find that our choices begin to narrow rather quickly. For example, in the first column, we went from a possible 9 candidates, to only 3 with only a region&#8217;s worth of information. Now, armed with all the information from the entire board we can solve most Sudoku puzzles with little to no backtracking.</p>
+
+<h3 id="constraintpropagationicallitrippling">Constraint Propagation (I call it rippling)</h3>
+
+<p>The next design consideraton is actually an add-on to the last section. It has to do with maintaining the puzzle&#8217;s constraints. So we&#8217;ve selected a good set of constraints to optimize our decision making process, and after applying that to our board, we&#8217;ve &#8220;nearly&#8221; got a complete solution. However, it seems that each time we make a decision the board that we previously optimized is no longer valid. Why? Well, because each decision made changes the state of the board, thus making the previous constraints out-of-date. What we need is the information for each selection to be shared with all cells affected. Well, we know that the cells in the row, column, and region of the selected cells will now have an additional constraint based on the candiate placed in the selected cell. Thus, we can ensure that they all have this information by &#8220;rippling&#8221; the new information across those cells. This technique is known as constraint propagation, a powerful optimization techinque used to solve complex decision problems where choices have consequences that &#8220;ripple&#8221; across the solution space.<a class="citation" href="#fn:2" title="Jump to citation">[2]<span class="citekey" style="display:none">constraint-satisfaction</span></a></p>
+
+<div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-tMWhVcWkvOI/VXD_YG5H8YI/AAAAAAAAAeM/lLAwtt82I2k/s1600/sudoku-propagation.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://3.bp.blogspot.com/-tMWhVcWkvOI/VXD_YG5H8YI/AAAAAAAAAeM/lLAwtt82I2k/s400/sudoku-propagation.png" /></a></div>
+
+<p>One key point to note here is that once we&#8217;ve finished pruning the board, we never need to do it again, as long as we accurately maintain the state of the board through constraint propagation. This means that we must keep track of the changed cells after each selection, so that if we need to backtrack, we can simply restore the changed cells.</p>
+
+<h3 id="backtracking">Backtracking</h3>
+
+<p>And lastly comes the most crucial step to the Sudoku algorithm - backtracking. The idea is simple enough. Keep placing numbers in squares until our constraints tell us we can&#8217;t do that. Now, once they tell us we can&#8217;t do that, and there are no other possible candidates left for that square, it&#8217;s time to try a new approach, so we will back up until we reach the previous &#8220;fork&#8221; in the road, which is to say, we backtrack until we reach a cell with an unselected candidate. This means we need to keep track of previous states so that we can easily undo changes we&#8217;ve made. If you&#8217;re thinking this smells like recursion, then you&#8217;re definitely tracking the right scent. To complete the design, we&#8217;ve got one more diagram that shows part of an initial solution, where the decisions led it to a dead end (an unsolvable path), so it backtracks to the first new path. </p>
+
+<div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-ZpnXfpeTCXI/VXD_XiyaA6I/AAAAAAAAAeQ/TC70I7PW48I/s1600/sudoku-backtrack.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://3.bp.blogspot.com/-ZpnXfpeTCXI/VXD_XiyaA6I/AAAAAAAAAeQ/TC70I7PW48I/s400/sudoku-backtrack.png" /></a></div>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>Now for the fun part! Hopefully, after reading the above design approach the idea is clear enough that should you feel sufficiently motivated, you could go out and design your own Sudoku solver without too much trouble.</p>
+
+<h2 id="thesetup">The setup</h2>
+
+<ol>
+<li>I used a 9x9 integer array to represent the grid. The unsolved squares have the value 0, so I can easily tell if a square is unsolved.</li>
+<li>Since keeping track of the constraints requires lots of indexing and counting, I created a class to implement an array of booleans (nice way to keep track of constraints) that can easily be indexed by the board numbers 1 - 9, and will keep track of the number of candidates that are true. It also implements the <code>IEnumerable</code> and <code>IEnumerator</code> interfaces so that I can easily iterate through the list of available candidates, which makes our use of the <code>foreach</code> statement easier to code and a bit more expressive. If you&#8217;re a bit hazy on the enumeration interfacese in C#, try this to get the nitty-gritty.<a class="citation" href="#fn:3" title="Jump to citation">[3]<span class="citekey" style="display:none">enumerators</span></a></li>
+</ol>
+
+<p>Take a look at the initial code from my <code>SudokuSolver</code> class below:</p>
+
+<pre><code class="cs">// Convenience class for tracking candidates
+class Candidate : IEnumerable
+{
+    bool[] m_values;
+    int m_count;
+    int m_numCandidates;
+
+    public int Count { get { return m_count; } }
+
+    public Candidate(int numCandidates, bool initialValue)
+    {
+        m_values = new bool[numCandidates];
+        m_count = 0;
+        m_numCandidates = numCandidates;
+
+        for (int i = 1; i &lt;= numCandidates; i++)
+            this[i] = initialValue;
+    }
+
+    public bool this[int key]
+    {
+        // Allows candidates to be referenced by actual value (i.e. 1-9, rather than 0 - 8)
+        get { return m_values[key - 1]; }
+
+        // Automatically tracks the number of candidates
+        set
+        {
+            m_count += (m_values[key - 1] == value) ? 0 : (value == true) ? 1 : -1;
+            m_values[key - 1] = value;
+        }
+    }
+
+    public void SetAll(bool value)
+    {
+        for (int i = 1; i &lt;= m_numCandidates; i++)
+            this[i] = value;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder values = new StringBuilder();
+        foreach (int candidate in this)
+            values.Append(candidate);
+        return values.ToString();
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        return new CandidateEnumerator(this);
+    }
+
+    // Enumerator simplifies iterating over candidates
+    private class CandidateEnumerator : IEnumerator
+    {
+        private int m_position;
+        private Candidate m_c;
+
+        public CandidateEnumerator(Candidate c)
+        {
+            m_c = c;
+            m_position = 0;
+        }
+
+        // only iterates over valid candidates
+        public bool MoveNext()
+        {
+            ++m_position;
+            if (m_position &lt;= m_c.m_numCandidates)
+            {
+                if (m_c[m_position] == true)
+                    return true;
+                else
+                    return MoveNext();
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void Reset()
+        {
+            m_position = 0;
+        }
+
+        public object Current
+        {
+            get { return m_position; }
+        }
+    }
+}
+</code></pre>
+
+<p>And now the board, constraints, and other definitions.</p>
+
+<pre><code class="cs">// True values for row, grid, and region constraint matrices
+// mean that they contain that candidate, inversely,
+// True values in the candidate constraint matrix means that it
+// is a possible value for that cell.
+Candidate[,] m_cellConstraintMatrix;
+Candidate[] m_rowConstraintMatrix;
+Candidate[] m_colConstraintMatrix;
+Candidate[,] m_regionConstraintMatrix;
+
+// Actual puzzle grid (uses 0s for unsolved squares)
+int[,] m_grid;
+
+// Another convenience structure. Easy and expressive way
+// of passing around row, column information.
+struct Cell
+{
+    public int row, col;
+    public Cell(int r, int c) { row = r; col = c; }
+}
+
+// helps avoid iterating over solved squares
+HashSet&lt;Cell&gt; solved;
+HashSet&lt;Cell&gt; unsolved;
+
+// Tracks the cells changed due to propagation (i.e. the rippled cells)
+Stack&lt;HashSet&lt;Cell&gt;&gt; changed;
+
+public SudokuSolver(int[,] initialGrid)
+{
+    m_grid = new int[9, 9];
+    m_cellConstraintMatrix = new Candidate[9, 9];
+    m_rowConstraintMatrix = new Candidate[9];
+    m_colConstraintMatrix = new Candidate[9];
+    m_regionConstraintMatrix = new Candidate[9, 9];
+    solved = new HashSet&lt;Cell&gt;();
+    unsolved = new HashSet&lt;Cell&gt;();
+    changed = new Stack&lt;HashSet&lt;Cell&gt;&gt;();
+    bucketList = new HashSet&lt;Cell&gt;[10];
+    steps = 0;
+
+    // initialize constraints
+
+    for (int row = 0; row &lt; 9; row++)
+    {
+        for (int col = 0; col &lt; 9; col++)
+        {
+            // copy grid, and turn on all Candidates for every cell
+            m_grid[row, col] = initialGrid[row, col];
+            m_cellConstraintMatrix[row, col] = new Candidate(9, true);
+        }
+    }
+
+    for (int i = 0; i &lt; 9; i++)
+    {
+        m_rowConstraintMatrix[i] = new Candidate(9, false);
+        m_colConstraintMatrix[i] = new Candidate(9, false);
+        bucketList[i] = new HashSet&lt;Cell&gt;();
+    }
+    bucketList[9] = new HashSet&lt;Cell&gt;();
+
+    for (int row = 0; row &lt; 3; row++)
+        for (int col = 0; col &lt; 3; col++)
+            m_regionConstraintMatrix[row, col] = new Candidate(9, false);
+
+    InitializeMatrices();
+    PopulateCandidates();
+}
+</code></pre>
+
+<h3 id="settingtheconstraintsminimization">Setting the constraints (Minimization)</h3>
+
+<p>As we discussed in the design, the code needs to make intelligent decisions based on relevant information. The relevant information in our Sudoku solver are constraints, and before we begin plugging away we need to minimize the number of choices by setting our constraints. This can be done by adding a constraint to the row, column, and region for every filled in square. We can then update our cell&#8217;s constraints by reducing the available candidates based on the row, cell, and region constraints discovered previously.</p>
+
+<pre><code class="cs">private void InitializeMatrices()
+{
+    for (int row = 0; row &lt; 9; row++)
+    {
+        for (int col = 0; col &lt; 9; col++)
+        {
+            // if the square is solved update the candidate list
+            // for the row, column, and region
+            if (m_grid[row, col] &gt; 0)
+            {
+                int candidate = m_grid[row, col];
+                m_rowConstraintMatrix[row][candidate] = true;
+                m_colConstraintMatrix[col][candidate] = true;
+                m_regionConstraintMatrix[row / 3, col / 3][candidate] = true;
+            }
+        }
+    }
+}
+
+private void PopulateCandidates()
+{
+    //Add possible candidates by checking
+    //the rows, columns and grid
+    for (int row = 0; row &lt; 9; row++)
+    {
+        for (int col = 0; col &lt; 9; col++)
+        {
+            //if solved, then there are no possible candidates
+            if (m_grid[row, col] &gt; 0)
+            {
+                m_cellConstraintMatrix[row, col].SetAll(false);
+                solved.Add(new Cell(row, col));
+            }
+            else
+            {
+                // populate each cell with possible candidates
+                // by checking the row, col, and grid associated 
+                // with that cell
+                foreach (int candidate in m_rowConstraintMatrix[row])
+                    m_cellConstraintMatrix[row, col][candidate] = false;
+                foreach (int candidate in m_colConstraintMatrix[col])
+                    m_cellConstraintMatrix[row, col][candidate] = false;
+                foreach (int candidate in m_regionConstraintMatrix[row / 3, col / 3])
+                    m_cellConstraintMatrix[row, col][candidate] = false;
+
+                Cell c = new Cell(row, col);
+                unsolved.Add(c);
+            }
+        }
+    }
+}
+</code></pre>
+
+<h2 id="cellselection">Cell Selection</h2>
+
+<p>Now that we have enough information about the board to make an optimal decision, we must MAKE THE DECISION. The best way to do this is to pick the cell with the least number of candidates, as this would obviously be the easiest decision to make. This requires that we search the grid for &#8220;a&#8221; minimum cell. Remeber there might be multiple cells with the same number of candidates. In that case, we just pick the first cell we find.</p>
+
+<pre><code class="cs">private Cell NextCell()
+{
+    if (unsolved.Count == 0)
+        return new Cell(-1, -1); // easy way to singal a solved puzzle
+
+    Cell min = unsolved.First();
+    foreach (Cell cell in unsolved)
+        min = (m_cellConstraintMatrix[cell.row, cell.col].Count &lt; m_cellConstraintMatrix[min.row, min.col].Count) ? cell : min;
+
+    return min;
+}
+</code></pre>
+
+<p>In this explanation code I chose to use a shorter min-find approach, but in the source code example I use bucket lists to dynamically track the minimum after each cell selection. This allows my minimum lookup to take place in essentially one operation. This improved performance by about 25%, so implementation approach can definitely have a lot of weight on how your solution performs.</p>
+
+<h2 id="candidateselectionanddeselection">Candidate Selection and Deselection</h2>
+
+<p>Although this code is likely the most complex looking in this section, selection and deselection are really just maintenance routines for managing the state of the board. Selecting/Deselecting the cell is not problematic, but updating all of the effected cells is a bit trickier. Upon selection, we need to iterate through the row, column, and region, and remove candidates from cells that contained the just selected candidate. The process is the same for unselecting a cell, except we are returning the candidate back to the previously changed cells. And thanks to the <code>SelectCandidate</code> routine this process is made simpler by only having to iterate through cells we know changed.</p>
+
+<div class="footnotes">
+<hr />
+<ol>
+
+<li id="fn:1" class="citation"><span class="citekey" style="display:none">dancing-links</span><p>Dancing Links. <a href="http://en.wikipedia.org/wiki/Dancing_Links">Link</a></p>
+</li>
+
+<li id="fn:2" class="citation"><span class="citekey" style="display:none">constraint-satisfaction</span><p>Constraint Satisfaction. <a href="http://en.wikipedia.org/wiki/Constraint_satisfaction">Link</a></p>
+</li>
+
+<li id="fn:3" class="citation"><span class="citekey" style="display:none">enumerators</span><p>Enumerator Interface in C#. <a href="https://msdn.microsoft.com/en-us/library/system.collections.ienumerator(v=vs.110).aspx">Link</a></p>
+</li>
+
+<li id="fn:4" class="citation"><span class="citekey" style="display:none">solving-sudoku</span><p>Another similar implementation in Python. <a href="http://norvig.com/sudoku.html">Link</a>.</p>
+</li>
+
+</ol>
+</div>
+

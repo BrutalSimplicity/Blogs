@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"> 
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/darkula.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <style>
+    /* body */
+    body {
+        margin: 20px auto;
+        width: 90%;
+    }
+
+    .post-title {display:none;}
+
+    /* html tags */
+
+    /*  Work around IE/Win code size bug - courtesy Jesper, waffle.wootest.net  */
+
+    * html code {
+        font-size: 80%;
+    }
+
+    * html pre {
+        font-size: 80%;
+    }
+
+    /* code */
+
+    pre {
+     font-size: 80%;
+     max-height: 500px;
+     overflow: scroll;
+     background: #f1f5f9;
+     border: 1px solid #c7cfd5;
+     margin: 5px;
+     padding: 8px;
+     white-space: pre;
+     word-break: normal;
+     word-wrap: normal;
+    }
+
+    p {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    }
+
+    div {
+     margin-top: 20px;
+     margin-bottom: 20px;
+    }
+
+.container {
+ width: auto;
+}
+
+    img {
+     margin: auto;
+    }
+
+        h1  {
+    margin-top: 1em;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+}
+h2  {
+    margin-top: 2.5em;
+    padding-bottom: 2px;
+}
+h3  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+}
+h4  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+}
+h5  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+}
+
+h6  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+}
+    </style>
+  </head>
+  <body>
+
+<h1 id="webcrawlingpart1-scrapingwithscrapy">Web Crawling Part 1 - Scraping with Scrapy!</h1>
+
+<a href="http://2.bp.blogspot.com/-zzk8h5zqiWM/Vd_J1K5jn8I/AAAAAAAAAhI/sRlOHLAzg1o/s1600/python.png" imageanchor="1" ><img border="0" class="img-responsive" src="http://2.bp.blogspot.com/-zzk8h5zqiWM/Vd_J1K5jn8I/AAAAAAAAAhI/sRlOHLAzg1o/s1600/python.png" /></a>
+
+<p>We know the internet is a goldmine for useless information - a mishmash of human knowledge. Information that speaks so loudly that sometimes it&#8217;s hard to hear what really matters. So how can we filter out the noise, and get at the important stuff? </p>
+
+<p>Web scraping allows us to access the gems of data embedded within a web page. And much like Perl was the original Swiss Army Knife for the web, it seems Python has stepped in and become the modern programmer&#8217;s Macguyver Kit, seemingly having a tool/framework/library that fits almost every situation. And web crawling/scraping is no different. Introduce, Scrapy, an amazing library for quickly developing, testing, and deploying your web scrapers.</p>
+
+<p>So what is Scrapy again?
+Scrapy is both a web crawler and web scraper. What does that mean? First, that means that Scrapy has the ability to navigate a sites structure by following links to different pages within or oustide of the site&#8217;s domain. Second, as Scrapy navigates these webpages, it can then peel away the layers of structural information on a webpage (i.e. HTML) to access only the specific content that you want. This makes it very useful for extracting globs of raw data from the web.</p>
+
+<p>What we will be scraping: <a href="http://www.pro-football-reference.com/years/2014/games.htm">2014 NFL Season Play-By-Play Data</a></p>
+
+<p><strong>What you need to proceed</strong>:</p>
+
+<ul>
+<li><a href="https://www.python.org/download/releases/2.7/">Python 2.7</a></li>
+<li><a href="http://doc.scrapy.org/en/latest/intro/install.html">Scrapy</a></li>
+<li><a href="http://ipython.org/ipython-doc/2/install/install.html">IPython</a></li>
+<li><a href="http://docs.continuum.io/anaconda/install">Anaconda</a> (All-in-one install)*</li>
+</ul>
+
+<p>*<em>May require running <code>conda install scrapy</code> from the command line if not available after install</em></p>
+
+<p>Overview:</p>
+
+<ul>
+<li><a href="#firststeps...">First Steps</a></li>
+<li><a href="#scrapebeforeyoucrawl-scrapyshell">Scrape Before You Crawl</a></li>
+<li><a href="#letyourspiderdothecrawling">Let Your Spider Do The Crawling</a></li>
+<li><a href="#scalpelsandsledgehammers">Scalpels and Sledgehammers</a></li>
+<li><a href="#acrawlingspree">A Crawling Spree</a></li>
+<li><a href="#legaleseandscrapingetiquette">Legalese and Scraping Etiquette</a></li>
+<li><a href="#wrap-up">Wrap-Up</a></li>
+</ul>
+
+<p>Here, in Part 1 we&#8217;ll focus on leveraging the Scrapy framework to quickly parse all of the play-by-play data for the 2014 NFL season.
+In Part 2 we&#8217;ll build off our knowledge here to implement a full-fledged web crawler to parse multiple seasons of NFL game data.</p>
+
+<h3 id="adataflowoverview">A dataflow overview</h3>
+
+<a href="http://3.bp.blogspot.com/-TRxU3bGgqAY/Vd_L56GQMRI/AAAAAAAAAhk/lS7mSF_25wQ/s1600/Scrapy-Dataflow.png" imageanchor="1" ><img class="img-responsive" border="0" src="http://3.bp.blogspot.com/-TRxU3bGgqAY/Vd_L56GQMRI/AAAAAAAAAhk/lS7mSF_25wQ/s640/Scrapy-Dataflow.png" /></a>
+
+<div class="container bg-info">
+<h4><span class="glyphicon glyphicon-info-sign">&nbsp;</span>Brief Overview</h4>
+<ul>
+<li>
+The spider schedules requests for download (1)
+</li>
+<li>The engine manages these requests and then executes them concurrently (2,3) </li>
+<li>When the response is available (4) the engine sends it back to the spider (5,6) </li>
+<li>The spider then scrapes the response (7) and either returns more requests to the scheduler (1), or returns scraped items from the webpage (8a,8b).</li>
+</ul>
+</div>
+
+<h2 id="firststeps...">First Steps&#8230;</h2>
+
+<p>To begin implementing the spider we need to setup our environment so that Scrapy can know where to find the items necessary to execute your spider. To do this we use the command <code>scrapy startproject nfl_pbp_data</code> to automatically setup the directories and files necessary for our spider. So find a directory you would like the project to reside, and execute the above from your command line. You can skip the next section if you&#8217;re already familiar with XPath and web scraping.</p>
+
+<div class="container">
+<h4 id="recon">Recon</h4>
+  
+<div id="reconinfo" class="collapse">
+<p>But wait&#8230; Before we continue we need to get an idea of where our data is located within the webpage. This requires a bit of recon on the page to determine it&#8217;s layout, and how best to access the information. The best tools to use for this nowadays come with every major browser (Firefox, Chrome, Safari, IE, Opera). They are normally hidden away in some developer tab/option that may not be readily apparent until you search for it. If in doubt, check <a href="http://devtoolsecrets.com/">here</a>.</p>
+
+<p>Now, for this walk-through we&#8217;re going to scrape the 2014 NFL season play-by-play data. This will be a good example to get a basic understanding of the scraping process, and might even prove useful to anyone who likes playing with the numbers. This data is available for free use and can be obtained from a number of sources. We&#8217;ll grab our data from pro-football-reference.com, which for the past few years has been given access to the official play-by-play data feeds pushed directly through NFL.com.</p>
+
+<p>So now fire up your favorite browser and developer tool, and head on over to <a href="http://www.pro-football-reference.com/years/2014/games.htm"></a>. The first thing to notice here is that the data is setup in a very nice, tabular format. It&#8217;s also not polluted with ads or other extraneous information. this will make our job a whole lot easier.</p>
+
+<p>To access the particular information we want the Scrapy framework allows you to query the page using XPath or CSS selectors. Here we&#8217;ll be using XPath selectors, but you can easily substitute our queries for the CSS selector equivalent. I won&#8217;t be going into much detail about XPath, but I will try to explain the XPath queries we choose and why we&#8217;ve chosen them. For an excellent overview and reference for XPath, you can take a look at <a href="http://www.w3schools.com/xml/xml_xpath.asp">w3schools</a> and <a href="https://msdn.microsoft.com/en-us/library/ms256115(v=vs.110).aspx">MSDN</a>.</p>
+
+<p>Since we&#8217;ll be extracting the game data, we actually need to click one of the boxscore links. This will take you to a game summary page that has a wealth of information, including the exact information we&#8217;re looking for - the play-by-play data. If you inspect the tag containing the play-by-play data you&#8217;ll see that it resides under <code>&lt;table id=&quot;nfl_pbp_data&quot;...</code>. And this is where we&#8217;ll begin constructing our XPaths.</p>
+
+<a href="http://4.bp.blogspot.com/-GMe4743v02E/Vd_Jt0kFfUI/AAAAAAAAAgQ/tYczdq0pELQ/s1600/tag_inspector_gamedata.png" imageanchor="1" ><img class="img-responsive" border="0" src="http://4.bp.blogspot.com/-GMe4743v02E/Vd_Jt0kFfUI/AAAAAAAAAgQ/tYczdq0pELQ/s1600/tag_inspector_gamedata.png" /></a>
+
+  </div>
+  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#reconinfo">View Details >></button>
+</div>
+
+<h2 id="scrapebeforeyoucrawl-scrapyshell">Scrape Before You Crawl - Scrapy Shell</h2>
+
+<p>So one of the most useful tools in the Scrapy toolbox is the Scrapy Shell. It allows us to pull a web response into the iPython shell environment, which acts like a sort of playground for us to toss around the html until we&#8217;ve figured out how to extract our data.</p>
+
+<div class="container bg-info">
+<h4 id="whatsipython"><span class="glyphicon glyphicon-info-sign">&nbsp;</span>What&#8217;s IPython?</h4>
+
+<p>Python actually comes with it&#8217;s own shell, but IPython adds a bevy of features that essentially turn the shell into a programmer&#8217;s playground. If you find it really useful, you may want to also keep a watch out for <a href="https://jupyter.org/">Jupyter</a>, the platform-agnostic versions of IPython that will be compatible with many other languages (C#, C++, Javascript, Perl, Haskel, R, Ruby, etc&#8230;).</p>
+</div>
+
+<p>You can fire up the Scrapy shell by traveling to the top-level directory of your project and running <code>scrapy shell &quot;http://www.pro-football-reference.com/boxscores/201409040sea.htm&quot;</code>, which should bring up an IPython terminal. If not, refer to the IPython installation link above for some troubleshooting guidance.</p>
+
+<p>The data that we want to access is located under <code>&lt;table id=&quot;pbp_data&quot;&gt;</code> so we&#8217;ll start by using that as the start of our XPath.</p>
+
+<a href="http://3.bp.blogspot.com/-y_zgN-ZJTsc/Vd_Jv7qXcoI/AAAAAAAAAgY/hgORwR1QCx8/s1600/xpath_base.png" imageanchor="1" ><img class="img-responsive" border="0" src="http://3.bp.blogspot.com/-y_zgN-ZJTsc/Vd_Jv7qXcoI/AAAAAAAAAgY/hgORwR1QCx8/s1600/xpath_base.png" /></a>
+
+<p>In the first line you can see that the object <code>response</code> holds the response information captured by the Scrapy shell from our web address. And then in the second line we can see that the XPath returns an object with the results of our query. These objects are called selectors and are one of the primary weapons for carving out your data. From this selector we can now build out a more complex XPath that finds all table rows of the game data and then filters out any header rows (which conveniently are labeled under the class <code>thead</code>).</p>
+
+<a href="http://4.bp.blogspot.com/-1AA-oexn2X4/Vd_JxZOowjI/AAAAAAAAAg0/z_ggfbKCL-Q/s1600/xpath_rows.png" imageanchor="1" ><img border="0" class="img-responsive" src="http://4.bp.blogspot.com/-1AA-oexn2X4/Vd_JxZOowjI/AAAAAAAAAg0/z_ggfbKCL-Q/s1600/xpath_rows.png" /></a>
+
+<p>When you run this you may notice that Scrapy returns a list of objects from its query. This is because the XPath we&#8217;ve used extracts each table row and then returns the results as a list. So we can access each item just like a normal python list.</p>
+
+<p>So you might be wondering, okay so I&#8217;ve queried my data, but how do I actually extract the raw data? That&#8217;s simple you use the method <code>extract</code>. Now, before you get carried away attaching <code>extract</code> to the end of all of your selector queries, realize that <code>extract</code> always returns a list, whether it grabs one item or a hundred. So if you plan on actually storing this data you will need to pull it out of the list object.</p>
+
+<a href="http://3.bp.blogspot.com/-3vQoFuQI5Ko/Vd_Jwb0kZlI/AAAAAAAAAgg/DpsxyobCb9g/s1600/xpath_extract1.png" imageanchor="1" ><img border="0" class="img-responsive" src="http://3.bp.blogspot.com/-3vQoFuQI5Ko/Vd_Jwb0kZlI/AAAAAAAAAgg/DpsxyobCb9g/s1600/xpath_extract1.png" /></a>
+
+<p>It becomes slightly more complex if <code>extract</code> returns multiple items in the list. Consider this:</p>
+
+<a href="http://2.bp.blogspot.com/-vA1Jv1lNoAg/Vd_JwhuRjjI/AAAAAAAAAgo/POTqtiqYdKU/s1600/xpath_extract2.png" imageanchor="1" ><img border="0" class="img-responsive" src="http://2.bp.blogspot.com/-vA1Jv1lNoAg/Vd_JwhuRjjI/AAAAAAAAAgo/POTqtiqYdKU/s1600/xpath_extract2.png" /></a>
+
+<p class="bg-warning"><b>XPath Note:</b>
+The queries above use the <code>//</code> to indicate a recursive descent through the html hierarchy. This allows the query to search the entirety of the HTML document, or in the case of extracting a specific column, we can search through the entire <code>&lt;td&gt;</code> tag.</p>
+
+<p>Here the data extracted is not a contiguous text node so our selector works until it finds all of the text nodes and then returns them in a list. We can extract the data from here using python&#8217;s nifty <code>join</code> method. Note: This works well in our example, but may not be the best representation of other data sets. Figure out what works best for you.</p>
+
+<h2 id="letyourspiderdothecrawling">Let Your Spider Do The Crawling</h2>
+
+<p>By now, hopefully you feel comfortable scraping web data using selectors and the Scrapy shell. From here we&#8217;ll turn our attention back to implementing a functional web crawler using the rest of the Scrapy framework. First, go to your spiders directory (from the top level project directory it will be under <em>nfl_pbp_data/spiders</em>) and create a new python file called <em>NFLStatsSpider.py</em>. This will hold the guts of our spider, and is where all of the spiders you want Scrapy to use should reside. Now insert the code below as our basic template.</p>
+
+<pre><code class="python">import scrapy
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+
+class GameDataSpider(CrawlSpider):
+  name = &quot;nfl_pbp_data&quot;
+  start_urls = [&quot;http://www.pro-football-reference.com/years/2014/games.htm&quot;]
+
+  def parse_game_data(self, response):
+    pass
+</code></pre>
+
+<div class="container bg-info">
+<h4><span class="glyphicon glyphicon-info-sign">&nbsp;</span>Explanation</h4>
+<ul>
+<li>
+<code>CrawlSpider</code>: one of the generic spider classes Scrapy provides that adds some additional functionality to make crawling and scraping even easier. Here, we use <code>CrawlSpider</code> as our base class.
+</li>
+<li>
+<code>name</code>: the name of our spider. This is how Scrapy references our spider. You don&#8217;t have to tell it the filename, or update some huge configuration file, just set the name attribute, and anytime you need to reference your spider, you can call it by that name.
+</li>
+<li>
+<code>start_urls</code>: the initial urls fed to our spider that begin the crawling process.
+</li>
+</ul>
+</div>
+
+<p>One of the benefits of using the <code>CrawlSpider</code> class is that it allows you to set rules for easily extracting links for your spider to scrape. The rules have several options, but the most important ones are the <code>LinkExtractor</code> object and the <code>callback</code> argument.</p>
+
+<pre><code class="python">
+class GameDataSpider(CrawlSpider):
+  name = "nfl_pbp_data"
+  start_urls = ["http://www.pro-football-reference.com/years/2014/games.htm"]
+
+  # the comma following the first item is REQUIRED for single rules
+  rules = (
+    Rule(LinkExtractor(allow=('boxscores/\w+\.htm')), callback='parse_game_data'),
+  )
+ </code></pre>
+
+<p>Here we use the <code>LinkExtractor</code> to specify which links we want to follow using a regular expression. Again, we can use the scrapy shell as a scratchpad to figure out what works. Then, we use the <code>callback</code> argument to specify what method to use for scraping each of the extracted links.</p>
+
+<a href="http://4.bp.blogspot.com/-9RapKPiCbzA/Vd_JwE_So4I/AAAAAAAAAgc/CmnRk_u_rVM/s1600/linkextractor.png" imageanchor="1" ><img class="img-responsive" border="0" src="http://4.bp.blogspot.com/-9RapKPiCbzA/Vd_JwE_So4I/AAAAAAAAAgc/CmnRk_u_rVM/s1600/linkextractor.png" /></a>
+
+<p class="bg-warning"><strong>Note:</strong>
+Remeber that we don't need links on the game data page, we need the links to the game data page, so to run the code above succesfully, you can run <code>fetch('http://www.pro-football-reference.com/years/2014/games.htm')</code> to update the response object with html from the boxscores page.</p>
+
+<h2 id="scalpelsandsledgehammers">Scalpels and Sledgehammers</h2>
+
+<p>In Scrapy the parser&#8217;s job job is to extract data from a response and return either data items or more requests. In this example we&#8217;re using the <code>LinkExtractor</code> to parse the requests we need to follow so we only need to return data items. This is actually much easier than it sounds since we&#8217;ve already done the hard part of determining the correct XPaths to use to extract our information. The only addition at this point is to take the extracted data and compile it into an object to be returned to the spider. For this Scrapy uses <code>Item</code> objects whose function is almost identical to Python dictionaries. The item objects are essentially a dictionary wrapper that informs Scrapy that there are scraped items to process. Because it is a dictionary we can describe our data as we extract it.</p>
+
+<pre><code class="python">
+  def parse_game_data(self, response):
+
+    for row in response.xpath('//table[@id="pbp_data"]/tbody/tr[not(contains(@class,"thead"))]'):
+      play = {}
+      play['game_id'] = [game_id]
+      play['date'] = [date]
+      play['play_id'] = [play_id]
+      play['quarter'] = row.xpath('td[1]//text()').extract()
+      play['time'] = row.xpath('td[2]//text()').extract()
+      play['down'] = row.xpath('td[3]//text()').extract()
+      play['togo'] = row.xpath('td[4]//text()').extract()
+      play['location'] = row.xpath('td[5]//text()').extract()
+      play['detail'] = row.xpath('td[6]//text()').extract()
+      play['away_points'] = row.xpath('td[7]//text()').extract()
+      play['home_points'] = row.xpath('td[8]//text()').extract()
+      play_id += 1
+
+    
+      # yield the item so that the scrapy engine can continue 
+      # processing web requests concurrently
+      yield play
+</code></pre>      
+
+<p>Here we are able to extract all of the game data and assign it to our <code>Item</code> object using whatever keys we choose, rather than having to define this information ahead of time. This is an added convenience in the newer versions of Scrapy that allows you to begin creating your scraper without predefining your data.</p>
+
+<p>In the above code we also leverage the power of XPath by first querying for all rows of game data, and then again upon iteration we query each specific row to extract exactly the information we want. This is an approach I call Scalpels and Sledgehammers, and is one of the powerful features of the Scrapy selectors. We can use the general selectors to create queries that smash up the data into large chunks, and then fine-tune them to make precision cuts that extract the real gems.</p>
+
+<h2 id="acrawlingspree">A Crawling Spree</h2>
+
+<p>And finally we get to the fruition of our hard work, and that is executing the spider and letting it do it&#8217;s thing. The code below is the final version of the code for our spider.</p>
+
+<pre><code class="python">
+import scrapy
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+
+class GameDataSpider(CrawlSpider):
+  name = "nfl_pbp_data"
+  start_urls = ["http://www.pro-football-reference.com/years/2014/games.htm"]
+
+  # the comma following the first item is REQUIRED for single rules
+  rules = (
+    Rule(LinkExtractor(allow=('boxscores/\w+\.htm')), callback='parse_game_data'),
+  )
+
+  def parse_game_data(self, response):
+    # uses the filename as the game id that takes the form yyyymmdd0hometeam 
+    # (i.e. 201409040sea) - purely a convenience choice
+    game_id = response.url[response.url.rfind('/')+1:-4]
+    date = game_id[:4] + '-' + game_id[4:6] + '-' + game_id[6:8]
+
+    play_id = 1
+    for row in response.xpath('//table[@id="pbp_data"]/tbody/tr[not(contains(@class,"thead"))]'):
+      play = {}
+      play['game_id'] = [game_id]
+      play['date'] = [date]
+      play['play_id'] = [play_id]
+      play['quarter'] = row.xpath('td[1]//text()').extract()
+      play['time'] = row.xpath('td[2]//text()').extract()
+      play['down'] = row.xpath('td[3]//text()').extract()
+      play['togo'] = row.xpath('td[4]//text()').extract()
+      play['location'] = row.xpath('td[5]//text()').extract()
+      play['detail'] = row.xpath('td[6]//text()').extract()
+      play['away_points'] = row.xpath('td[7]//text()').extract()
+      play['home_points'] = row.xpath('td[8]//text()').extract()
+      play_id += 1
+
+      # sanitize extracted data
+      for key in play.keys():
+        
+        # no empty keys
+        if not play[key]:
+          play[key] = ''
+
+        # join lists with multiple elements 
+        elif len(play[key]) > 1:
+          play[key] = ''.join(play[key])
+
+        else:
+          play[key] = play[key][0]
+    
+      # yield the item so that the scrapy engine can continue 
+      # processing web requests concurrently
+      yield play
+</code></pre>
+
+<p>The spider can now be executed by moving to the top directory of your project and executing <code>scrapy crawl nfl_pbp_data -s DOWNLOAD_DELAY=5 --output_file=game_data.csv</code>. </p>
+
+<div class="container bg-info">
+<h4><span class="glyphicon glyphicon-info-sign">&nbsp;</span>Options meaning</h4>
+<ul>
+<li><code>DOWNLOAD_DELAY</code>: Controls the time between requests. This is a VERY important part of crawling websites. Please be kind. See note below.</li>
+<li><code>output_file</code>: The file to write the scraped data to. Scrapy supports the following popular formats: JSON, XML, and CSV. In Part 2, we&#8217;ll see how using an item pipeline, which post-processes an item, allows us to store the data in any format (i.e. A database). See <a href="http://doc.scrapy.org/en/1.0/topics/feed-exports.html#topics-feed-storage-ftp">Feed Exports</a> in the Scrapy documentation for more information.</li>
+</ul>
+</div>
+
+<h2 id="legaleseandscrapingetiquette">Legalese and Scraping Etiquette</h2>
+
+<p>If you notice in the crawler execution command above we&#8217;ve assigned a value to the <code>DOWNLOAD_DELAY</code> setting. This is important scraping etiquette, as many sites mistake web crawlers for Denial-Of-Service (DOS) attacks since a web crawler can essentially bombard a server with requests in a manner very similar to a DOS attack. In fact, many web sites try to circumvent DOS attacks (and web crawlers in some cases) by prohibiting users with abnormal web browsing activity. You should always consider this, when building your crawler, and use reasonable delays between your requests. </p>
+
+<p>It is important to remember that scraping data from websites is usually bypassing the content author&#8217;s intended use of the information. Most websites expect users to view their information at a reasonable pace, and even at pro-football-reference.com they&#8217;ve taken considerable steps to allow the user to make personal use of the data offline. And, just because you can doesn&#8217;t mean you should. It&#8217;s always important to read the website&#8217;s terms of use, so you understand the conditions placed under the data your extracting. And if you&#8217;re doing serious crawling you should also take a look at their <em>robots.txt</em> file so that you understand the rules for web crawling services. A <em>robots.txt</em> file is used by most large websites and is usually utilized by search engines and other massive crawling services.</p>
+
+<h2 id="wrap-up">Wrap-up</h2>
+
+<p>The point of this blog was to provide you with a more comprehensive walk through of creating a basic web crawler in Scrapy. So many time the basic tutorials on the web lack the complexity to allow you to do any real work so I&#8217;ve tried to provide this example as a resource for those looking to see a beginner-intermediate level overview of building a scraper that can extract a large data set spread across multiple pages. In Part 2 we&#8217;ll build off of this example and cover more advanced features of the Scrapy framework such as anonymous scraping, custom export feeds, sharing data across requests, and multiple item scraping. My source for this example is provided below along with the 2014 play-by-play game data in CSV, JSON, and Sqlite.</p>
+
+<h3 id="references">References</h3>
+
+<ul>
+<li><a href="https://msdn.microsoft.com/en-us/library/ms256115(v=vs.110).aspx">Scrapy Documentation</a></li>
+<li><a href="https://msdn.microsoft.com/en-us/library/ms256115(v=vs.110).aspx">XPath Reference</a></li>
+<li><a href="https://docs.python.org/2/">Python Documentation</a></li>
+<li><a href="#">Source (includes game data)</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/darkula.min.css">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+/* body */
+body {
+    margin: 20px auto;
+    width: 800px;
+    color: #000;
+    font: 13px "Myriad Pro", "Lucida Grande", Lucida, Verdana, sans-serif;
+}
+
+.post-title {display:none;}
+
+/* html tags */
+
+/*  Work around IE/Win code size bug - courtesy Jesper, waffle.wootest.net  */
+
+* html code {
+    font-size: 80%;
+}
+
+* html pre {
+    font-size: 80%;
+}
+
+/* code */
+
+pre {
+ font-size: 80%;
+ max-height: 500px;
+ overflow: scroll;
+ background: #f1f5f9;
+ border: 1px solid #c7cfd5;
+ margin: 5px;
+ padding: 8px;
+ white-space: pre;
+ word-break: normal;
+ word-wrap: normal;
+}
+
+hr {
+    color: #919699;
+    size: 1;
+    width: 100%;
+    noshade: "noshade"
+}
+
+/* headers */
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Myriad Pro", "Lucida Grande", Lucida, Verdana, sans-serif;
+    font-weight: bold;
+}
+
+h1  {
+    margin-top: 1em;
+    margin-bottom: 25px;
+    color: #000;
+    font-weight: bold;
+    font-size: 30px;
+}
+h2  {
+    margin-top: 2.5em;
+    font-size: 24px;
+    color: #000;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #919699;
+}
+h3  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+    font-size: 17px;
+    color: #000;
+}
+h4  {
+    margin-top: 2em;
+    margin-bottom: .5em;
+    font-size: 15px;
+    color: #000;
+}
+h5  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+    padding: 0;
+    font-size: 13px;
+    color: #000;
+}
+
+h6  {
+    margin-top: 20px;
+    margin-bottom: .5em;
+    padding: 0;
+    font-size: 11px;
+    color: #000;
+}
+
+p {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* lists */
+
+ul  {
+    list-style: square outside;
+    margin: 0 0 0 30px;
+    padding: 0 0 12px 6px;
+}
+
+li  {
+    margin-top: 7px;
+}
+            
+ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin: 0 0 0 30px;
+    padding: 0 0 12px 6px;
+}
+    
+ol ol {
+    list-style-type: lower-alpha;
+    list-style-position: outside;
+    margin: 7px 0 0 30px;
+    padding: 0 0 0 10px;
+    }
+
+ul ul {
+    margin-left: 40px;
+    padding: 0 0 0 6px;
+}
+
+li>p { display: inline }
+li>p+p { display: block }
+li>a+p { display: block }
+
+
+/* table */
+
+table {
+    width: 100%;
+    border-top: 1px solid #919699;
+    border-left: 1px solid #919699;
+    border-spacing: 0;
+}
+    
+table th {
+    padding: 4px 8px 4px 8px;
+    background: #E2E2E2;
+    font-size: 12px;
+    border-bottom: 1px solid #919699;
+    border-right: 1px solid #919699;
+}
+table th p {
+    font-weight: bold;
+    margin-bottom: 0px; 
+}
+    
+table td {
+    padding: 8px;
+    font-size: 12px;
+    vertical-align: top;
+    border-bottom: 1px solid #919699;
+    border-right: 1px solid #919699;
+}
+table td p {
+    margin-bottom: 0px; 
+}
+table td p + p  {
+    margin-top: 5px; 
+}
+table td p + p + p {
+    margin-top: 5px; 
+}
+
+/* forms */
+
+form {
+    margin: 0;
+}
+
+button {
+    margin: 3px 0 10px 0;
+}
+input {
+    vertical-align: middle;
+    padding: 0;
+    margin: 0 0 5px 0;
+}
+
+select {
+    vertical-align: middle;
+    padding: 0;
+    margin: 0 0 3px 0;
+}
+
+textarea {
+    margin: 0 0 10px 0;
+    width: 100%;
+}
+</style>
+<h1 id="parallelsolutionsinc">Parallel Solutions in C#</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The age of parallel computing has arrived, and now, even us programmers have the burdensome task of taking what was once simple sequential code and making it run on parallel processors. There are so many painstaking details to keep track of - iterators, load balancing, starvation, data sharing, synchronization, &#8230; Yeah, I think you get the point. It&#8217;s enough to drive one mad. So, if this the way of the future, how does one keep from losing their mind amidst the chaos?</p>
+
+<figure>
+<a href="http://1.bp.blogspot.com/--Ta4QbxmFK0/VXAsx3UmCJI/AAAAAAAAAc0/KejR4hgphSg/s1600/stewie-gone-mad.gif" imageanchor="1" ><img border="0" src="http://1.bp.blogspot.com/--Ta4QbxmFK0/VXAsx3UmCJI/AAAAAAAAAc0/KejR4hgphSg/s320/stewie-gone-mad.gif" /></a>
+</figure>
+
+<h3 id="thewayforward">The Way Forward</h3>
+
+<p>No, fear not my programming denizens, we have an answer that comes in the form of the .NET (Task Parallel Library (TPL))<a class="citation" href="#fn:1" title="Jump to citation">[1]<span class="citekey" style="display:none">msdn-tpl</span></a>. If you&#8217;re not familiar, don&#8217;t worry, we will walk through a few examples of transforming sequential code into parallel, and hopefully by the end, the angst of parallel programming will be a thing of the past.</p>
+
+<p>The Task Parallel Library works very similar to many of the parallel frameworks used in C++ (OpenMP, Intel Thread Building Blocks, and Micorosft Parallel Patterns Library), in that we are given parallel structures that are very similar to the sequential iteration syntax we are already familiar with. For example, the <code>for</code> and <code>foreach</code> have the equivalents <code>Parallel.For</code> and <code>Parallel.Foreach</code> that work very simliar to their sequential counterparts. Next, we&#8217;ll talk about these tools and how they can be used to simplify your code. And lastly, we&#8217;ll cap it all off with an example of converting sequential code into parallel code by creating a fractal image using the Mandelbrot set.</p>
+
+<p><a href="https://drive.google.com/file/d/0B7fo5CbThYAKWVZENmMzSVQ1am8/view?usp=sharing">Source</a>: Compiled in VS2013, .Net 4</p>
+
+<h2 id="themechanics">The Mechanics</h2>
+
+<p>So, let&#8217;s do something basic. We&#8217;ll show a few variations of the transformation of an index-based sequential loop into a parallel one.</p>
+
+<p>Let&#8217;s say we want to multiply some huge set (like 1 million plus elements) by a scaling factor, and we want to utilize the power of multiple cores to do it. Well, we can begin by writing the code sequentially.</p>
+
+<pre><code class="cs">double scale_factor = 3.5;
+for (int index = 0; index &lt; elements.Length; index++)
+{
+    elements[idx] = elements[idx] * scale_factor;
+}
+
+</code></pre>
+
+<p>This can then be converted into the following equivalent parallel code.</p>
+
+<pre><code class="cs">double sum = 0.0;
+double scale_factor = 3.5;
+for (int index = 0; index &lt; elements.Length; index++)
+{
+    for (int innerIndex = 0; innerIndex &lt; index; innerIndex++)
+        sum  = sum + element[innerIndex] * scale_factor;
+}
+</code></pre>
+
+<p>Simple, eh? Yes, it&#8217;s really that easy. Just make sure you include the <code>System.Threading.Tasks.Parallel</code> assembly and you&#8217;re ready to begin harnessing the power of multiple cores. </p>
+
+<h3 id="underthehood">Under the Hood</h3>
+
+<p>Now, let&#8217;s talk about what&#8217;s going on under the hood. The TPL takes your loop and creates a thread for each core of the computer. It then partitions the loop among the number of threads. In the past, this was all done manually by you, the programmer, and although it sounds simple, even this most basic example can easily suffer from thread starvation or improper indexing, which may even miss some elements entirely (it&#8217;s surprisingly difficult to implement proper indexing for threads). This is why we can release this burden from our minds, and let the powerful TPL handle the mundance mechanics of thread synchronization. However, although our speedup will be quite noticable, especially for large sets; it is important to remember that the speedup from multiple cores is NOT linear. You&#8217;re speedup will only be as great as you&#8217;re slowest thread. And even though the .NET framework tries to do a good job at partitioning the set to balance the work load, it is highly unlikely that each thread will do the same amount of work. If you&#8217;re curious about why this is, take a look at what Gene Amdahl says about it. <a class="citation" href="#fn:2" title="Jump to citation">[2]<span class="citekey" style="display:none">amdahl</span></a></p>
+
+<p>Here&#8217;s another, slightly more complex example. This time we will aggregate the elements using a sum. This requires us to use a mutex to lock our shared data (the sum).</p>
+
+<pre><code class="cs">double sum = 0.0;
+double scale_factor = 3.5;
+for (int index = 0; index &lt; elements.Length; index++)
+{
+    for (int innerIndex = 0; innerIndex &lt; index; innerIndex++)
+        sum  = sum + element[innerIndex] * scale_factor;
+}
+</code></pre>
+
+<p>And the corresponding parallel code:</p>
+
+<pre><code class="cs">double sum = 0.0;
+double scale_factor = 3.5;
+object mutex = new object();
+Parallel.For(0, elements.Length - 1,    // range is inclusive
+    (index) =&gt;
+    {
+        double local_sum = 0.0;
+        for (int innerIndex = index; innerIndex &lt; 100; innerIndex++)
+            local_sum  = local_sum + elements[innerIndex % elements.Length] * scale_factor;
+        
+        lock (mutex)
+        {
+            sum += local_sum;
+        }
+    }
+);
+</code></pre>
+
+<p>This parallel transformation is slightly more complex since we now have to ensure that the threads don&#8217;t all access the shared data at once. This is what&#8217;s known as a race condition, and is another one of the difficulties of writing threaded code. I won&#8217;t go into detail about the different hazards involved in writing threaded code, but a race condition basically occurs when the output depends on a sequence of inputs. In our example, it is possible that the sum can be overwritten using an older version of itself. If it sounds weird, it is, but it happends, and is a source of major frustration for large-scale multithreaded applications.</p>
+
+<h2 id="thefunstuff">The Fun Stuff</h2>
+
+<figure>
+<a href="http://1.bp.blogspot.com/-amjFsTVV2Mc/VXAsxaoiWMI/AAAAAAAAAcs/p6qCrm94WLo/s1600/fractals-combined.png" imageanchor="1" ><img border="0" src="http://1.bp.blogspot.com/-amjFsTVV2Mc/VXAsxaoiWMI/AAAAAAAAAcs/p6qCrm94WLo/s320/fractals-combined.png" /></a>
+</figure>
+
+<p>Okay, now that we&#8217;ve gotten a bit of the techno babble out of the way, let&#8217;s make something cool. I&#8217;ve always been fascinated with fractals, as they seem like such elegant structures, and the fact that they are natural phenomenon occurring throughout nature, gives them a sort of mysterious intrigue.<a class="citation" href="#fn:3" title="Jump to citation">[3]<span class="citekey" style="display:none">fractal-gallery</span></a> The Mandelbrot Set is one such fractal. It is essentially calculated by feeding a point, c, into the complex function, <span class="math">\(f(z) = z^2 + c\)</span> , and iterating upon previous values of <span class="math">\(f(z)\)</span> , and if the function tends to infinity it is not in the Mandelbrot Set, and we generally denote this by coloring the point. I won&#8217;t go into too much detail about this, as internet resources<a class="citation" href="#fn:4" title="Jump to citation">[4]<span class="citekey" style="display:none">fractal-info</span></a> can give a much better explanation than I can, but I do want to draw attention to just how easy it is to translate the algorithm from sequential to parallel, and just how much of a performance boost is possible with parallel code. Don&#8217;t worry, although I don&#8217;t explain the algorithm, this code, and the source example have been liberally commented.</p>
+
+<pre><code class="cs">private Pixel[,] GenerateMandelbrot(int width, int height, double realMin, double realMax, double imagMin, 
+                                    double imagMax, int iterations, List&lt;Color&gt; colorSet, bool runParallel = false)
+{
+    // info on mandelbrot and fractals
+    // https://classes.yale.edu/fractals/MandelSet/welcome.html
+    Pixel[,] image = new Pixel[width, height];
+
+    // scale for cartesian -&gt; complex translation
+    double realScale = (realMax - realMin) / width;
+    double imagScale = (imagMax - imagMin) / height;
+
+    if (runParallel)
+    {
+        // Parallel Version
+        Parallel.For(0, width,
+        (xPixel) =&gt;
+        {
+            for (int yPixel = 0; yPixel &lt; height; yPixel++)
+            {
+                // complex plane is similar to cartesian, 
+                // so translation just requires scaling and an offset
+                // (x, y) =&gt; (real, imag) = (realScale * x + realMin, imagScale * y + imagMin)
+                Complex c = new Complex(realScale * xPixel + realMin, imagScale * yPixel + imagMin);
+                Complex z = new Complex(0, 0);
+
+                // black is the default
+                // assumes point will be in the mandelbrot set
+                // iterations will determine if it is not
+                image[xPixel, yPixel] = new Pixel(0, 0, 0);
+                for (int iterIdx = 0; iterIdx &lt; iterations; iterIdx++)
+                {
+                    // the basic iteration rule
+                    z = z * z + c;
+
+                    // does it tend to infinity?
+                    // yes, it seems strange, but there is a proof
+                    // for this (https://classes.yale.edu/fractals/MandelSet/JuliaSets/InfinityProof.html)
+                    // Essentially, if the distance of z from the origin (magnitude), is greater than 2
+                    // then the iteration will go to infinity, which means it is NOT in the mandelbrot
+                    // set
+                    if (z.Magnitude &gt; 2.0)
+                    {
+                        double percentage = (double)iterIdx / (double)iterations;
+                        Color chosen = colorSet[(int)(percentage * colorSet.Count)];
+                        image[xPixel, yPixel].FromColor(chosen);
+                        break;
+                    }
+                }
+            }
+        });
+    } else
+    {
+        // Sequential Version
+        for (int xPixel = 0; xPixel &lt; width; xPixel++)
+        {
+            for (int yPixel = 0; yPixel &lt; height; yPixel++)
+            {
+                Complex c = new Complex(realScale * xPixel + realMin, imagScale * yPixel + imagMin);
+                Complex z = new Complex(0, 0);
+                image[xPixel, yPixel] = new Pixel(0, 0, 0);
+                for (int iterIdx = 0; iterIdx &lt; iterations; iterIdx++)
+                {
+                    z = z * z + c;
+                    if (z.Magnitude &gt; 2.0)
+                    {
+                        double percentage = (double)iterIdx / (double)iterations;
+                        Color chosen = colorSet[(int)(percentage * colorSet.Count)];
+                        image[xPixel, yPixel].FromColor(chosen);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return image;
+}
+</code></pre>
+
+<p>Yes, literally changing the <code>for</code> to <code>Parallel.For</code> is the only difference between the sequential and parallel versions of the code. Now, checkout the difference in runtimes.</p>
+
+<p><a href="http://1.bp.blogspot.com/-oxNsi2Svh5M/VXAsxHTOcLI/AAAAAAAAAcw/uOZddElwpxE/s1600/fractal-sequential.png" imageanchor="1" ><img border="0" src="http://1.bp.blogspot.com/-oxNsi2Svh5M/VXAsxHTOcLI/AAAAAAAAAcw/uOZddElwpxE/s320/fractal-sequential.png" /></a>
+<a href="http://2.bp.blogspot.com/-xi2R9jFM-Rk/VXAsxD4RdFI/AAAAAAAAAco/UE-vnISVz7U/s1600/fractal-parallel.png" imageanchor="1" ><img border="0" src="http://2.bp.blogspot.com/-xi2R9jFM-Rk/VXAsxD4RdFI/AAAAAAAAAco/UE-vnISVz7U/s320/fractal-parallel.png" /></a></p>
+
+<p>The parallel version is almost twice as fast running on my 2 cores. Now imagine if you had 4, 8, or even 16 cores running, and you can begin to envision just how critical parallel execution can be for improving the performance of your programs. If you haven&#8217;t yet, I urge you to also try compiling and running the source code. It was compiled with Visual Studio 2013, but if you aren&#8217;t able to open the solution, the source code should compile and execute in any .NET 4+ environment. And, even if you just want to play around creating fractals, this code generates Mandelbrot fractals from a random color palette with the ability to zoom so you can play around with the settings and generate some really mindbending fractal patterns. Have fun!</p>
+
+<h2 id="wrap-up">Wrap-Up</h2>
+
+<p>Hopefully, this has helped dissolve some of the apprehension felt when faced with creating parallel code. Using C# and the TPL we were able to simplify the creation of parallel algorithms using control structures that we&#8217;re already familiar with. I should also mention that there is a way of using the TPL with Linq, and examples of this, and more complex uses of the TPL are available on MSDN<a class="citation" href="#fn:1" title="Jump to citation">[1]<span class="citekey" style="display:none">msdn-tpl</span></a>. I&#8217;ve left a link below if you&#8217;re curious. The hertz rush is gone, and now we must be a bit more savvy when mining for peformance by parallelizing our code to harvest the potential of multiple cores. </p>
+
+<div class="footnotes">
+<hr />
+<ol>
+
+<li id="fn:1" class="citation"><span class="citekey" style="display:none">msdn-tpl</span><p>MSDN TPL Library. <a href="https://msdn.microsoft.com/en-us/library/dd460717(v=vs.110).aspx">Link</a></p>
+</li>
+
+<li id="fn:2" class="citation"><span class="citekey" style="display:none">amdahl</span><p>Amdahsl&#8217;s Law. <a href="http://en.wikipedia.org/wiki/Amdahl's_law">Link</a></p>
+</li>
+
+<li id="fn:3" class="citation"><span class="citekey" style="display:none">fractal-gallery</span><p>Fractal Gallery. <a href="http://classes.yale.edu/fractals/panorama/nature/natfracgallery/natfracgallery.html">Link</a></p>
+</li>
+
+<li id="fn:4" class="citation"><span class="citekey" style="display:none">fractal-info</span><p>Information on Fractals. <a href="https://classes.yale.edu/fractals/">Link</a></p>
+</li>
+
+</ol>
+</div>
+
